@@ -20,7 +20,7 @@ Styled in an eye-catching **Neo-Brutalist / Memphis Design** aesthetic with bold
    - Download videos and audio from **YouTube, Instagram (Reels, Stories, Posts), TikTok, Twitter / X, Facebook, Reddit, Pinterest, Twitch, Vimeo, and 1000+ sites**.
    - Dynamic platform detection with auto-updating badges and 1-click clipboard paste.
 
-2. **Interactive Live Video Preview & Dual-Handle Trimmer**
+2. **Interactive Live Video Preview & Dual-Handle Trimmer** 
    - Live embedded video viewport with synchronized scrubber.
    - Dual-handle visual range trimmer:
      - 🟢 **OPEN (Start)** handle

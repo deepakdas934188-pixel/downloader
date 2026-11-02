@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractMediaInfo } from '@/lib/extractor';
+import { extractMediaInfo } from '../../../lib/extractor';
 
 export async function POST(req: NextRequest) {
   try {

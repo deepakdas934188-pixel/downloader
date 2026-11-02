@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { spawnSync } from 'child_process';
-import { getYtDlpPath, getFfmpegPath } from '@/lib/binaries';
+import { getYtDlpPath, getFfmpegPath } from '../../../lib/binaries';
 import fs from 'fs';
 
 export const dynamic = 'force-dynamic';

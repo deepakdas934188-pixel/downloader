@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { processDownload } from '@/lib/downloader';
-import { DownloadRequest } from '@/lib/types';
+import { processDownload } from '../../../lib/downloader';
+import { DownloadRequest } from '../../../lib/types';
 import fs from 'fs';
 import { Readable } from 'stream';
 
