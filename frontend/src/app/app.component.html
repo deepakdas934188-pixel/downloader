@@ -1,0 +1,625 @@
+<ion-app>
+  <ion-content [fullscreen]="true" class="memphis-page">
+
+    <div class="memphis-wrapper">
+
+      <!-- TOP NAVBAR (Styled like SkillsUI header) -->
+      <header class="neo-header">
+        <div class="nav-brand">
+          <div class="brand-bullseye">
+            <span class="bullseye-outer"></span>
+            <span class="bullseye-inner"></span>
+          </div>
+          <span class="brand-text">SA<span class="pink-text">Downloader</span></span>
+        </div>
+
+        <nav class="nav-links">
+          <span class="nav-link" (click)="scrollToSearch()">ENGINE</span>
+          <span class="nav-link" (click)="showAuthModal = true">PRIVATE AUTH</span>
+          <span class="nav-link" (click)="chooseDeviceFolder()">DEVICE FOLDER</span>
+          <span class="nav-link" (click)="scrollToHistory()">HISTORY</span>
+        </nav>
+
+        <div class="nav-actions">
+          <!-- Backend Status Pill -->
+          <button class="neo-status-pill" [class.connected]="backendStatus === 'connected'"
+            [class.offline]="backendStatus === 'offline'" (click)="checkBackend()" title="Click to check engine health">
+            <span class="status-indicator"></span>
+            <span>{{ backendStatus === 'connected' ? 'ENGINE READY' : 'OFFLINE (RETRY)' }}</span>
+          </button>
+
+          <!-- PWA Install Button -->
+          @if (pwaService.canInstall) {
+          <button class="neo-btn neo-btn-yellow nav-install-btn" (click)="pwaService.promptInstall()">
+            INSTALL APP →
+          </button>
+          } @else {
+          <button class="neo-btn neo-btn-yellow nav-install-btn" (click)="chooseDeviceFolder()">
+            📁 {{ selectedFolder || 'SAVE FOLDER' }}
+          </button>
+          }
+        </div>
+      </header>
+
+      <!-- MAIN INPUT & CONTROLS STUDIO CARD -->
+      <section id="media-search" class="neo-card studio-card">
+
+        <div class="studio-card-header">
+          <div class="card-header-badge">
+            <span class="star-icon">★</span> ENTER SOCIAL MEDIA OR STREAM URL
+          </div>
+
+          <!-- Detected Platform Tag -->
+          <div class="platform-tag-wrap">
+            @switch (detectedPlatform) {
+            @case ('youtube') { <span class="platform-badge bg-yt">🔴 YOUTUBE DETECTED</span> }
+            @case ('instagram') { <span class="platform-badge bg-ig">🟣 INSTAGRAM REEL / POST</span> }
+            @case ('tiktok') { <span class="platform-badge bg-tt">⚫ TIKTOK VIDEO</span> }
+            @case ('twitter') { <span class="platform-badge bg-tw">🔵 X (TWITTER) MEDIA</span> }
+            @case ('facebook') { <span class="platform-badge bg-fb">🔷 FACEBOOK CLIP</span> }
+            @case ('reddit') { <span class="platform-badge bg-rd">🟠 REDDIT THREAD</span> }
+            @case ('twitch') { <span class="platform-badge bg-twc">🟣 TWITCH STREAM</span> }
+            @default { <span class="platform-badge bg-gen">AUTO PLATFORM ENGINE</span> }
+            }
+          </div>
+        </div>
+
+        <!-- URL Input Row -->
+        <div class="search-input-grid">
+
+          <div class="neo-input-box main-url-input">
+            <span class="input-prefix-icon">▶</span>
+            <input type="url" [(ngModel)]="mediaUrl" (ngModelChange)="onUrlChange()" (keydown.enter)="analyzeUrl()"
+              placeholder="Paste YouTube, Reels, TikTok, X, Twitch or Live Stream link here..." />
+            @if (mediaUrl) {
+            <button class="clear-input-btn" (click)="clearUrl()">✕</button>
+            }
+          </div>
+
+          <div class="input-actions-btns">
+            <button class="neo-btn neo-btn-yellow" (click)="pasteFromClipboard()" title="Paste from clipboard">
+              <ion-icon name="clipboard-outline"></ion-icon>
+              PASTE
+            </button>
+
+            <button class="neo-btn neo-btn-pink" (click)="analyzeUrl()" [disabled]="isLoadingInfo || !mediaUrl">
+              @if (isLoadingInfo) {
+              <span class="neo-spinner"></span>
+              INSPECTING...
+              } @else {
+              FETCH MEDIA →
+              }
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Supported Platforms & Action Pills Toolbar -->
+        <div class="studio-subbar">
+
+          <div class="supported-tags">
+            <span class="tags-label">WORKS WITH:</span>
+            <span class="neo-tag">YOUTUBE</span>
+            <span class="neo-tag">INSTAGRAM</span>
+            <span class="neo-tag">TIKTOK</span>
+            <span class="neo-tag">X / TWITTER</span>
+            <span class="neo-tag">FACEBOOK</span>
+            <span class="neo-tag">HLS / M3U8</span>
+          </div>
+
+          <div class="studio-toggles">
+            <!-- Private Account Auth Button -->
+            <button class="neo-btn-sm" [class.active-pill]="hasCookiesSet" (click)="showAuthModal = true">
+              🔐 {{ hasCookiesSet ? 'PRIVATE AUTH ACTIVE' : 'PRIVATE POST AUTH' }}
+            </button>
+
+            <!-- Live Stream Toggle Button -->
+            <button class="neo-btn-sm" [class.active-pill-red]="isLiveStream" (click)="isLiveStream = !isLiveStream">
+              🔴 LIVE STREAM: {{ isLiveStream ? 'ON' : 'OFF' }}
+            </button>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- Error Notification Box -->
+      @if (errorMessage) {
+      <div class="neo-card error-card">
+        <div class="error-badge">⚠ NOTICE</div>
+        <p class="error-msg">{{ errorMessage }}</p>
+        <button class="error-close-btn" (click)="errorMessage = ''">✕</button>
+      </div>
+      }
+
+      <!-- MEDIA INSPECTOR & DOWNLOAD CONFIGURATION STUDIO -->
+      @if (mediaInfo) {
+      <section class="neo-card inspector-card">
+
+        <!-- LIVE VIDEO PLAYER & ULTRA-COMPACT PRO TRIMMER DECK -->
+        <div class="video-preview-deck neo-card">
+          
+          <!-- Compact Top Bar -->
+          <div class="deck-top-bar">
+            <div class="deck-title-group">
+              <span class="deck-badge">▶ LIVE PLAYER</span>
+              <span class="deck-title" [title]="mediaInfo.title">{{ mediaInfo.title }}</span>
+            </div>
+
+            <!-- Single Line Mode Chips -->
+            <div class="deck-view-toggles">
+              @if (safeEmbedUrl) {
+                <button
+                  class="neo-pill-btn"
+                  [class.active-pill]="activeVideoType === 'embed'"
+                  (click)="activeVideoType = 'embed'"
+                >
+                  LIVE
+                </button>
+              }
+              @if (mediaInfo.playbackUrl) {
+                <button
+                  class="neo-pill-btn"
+                  [class.active-pill]="activeVideoType === 'video'"
+                  (click)="activeVideoType = 'video'"
+                >
+                  VIDEO
+                </button>
+              }
+              <button
+                class="neo-pill-btn"
+                [class.active-pill]="activeVideoType === 'thumb'"
+                (click)="activeVideoType = 'thumb'"
+              >
+                COVER
+              </button>
+            </div>
+          </div>
+
+          <!-- Video Viewport (Clean & constrained height) -->
+          <div class="video-screen-frame">
+            @if (activeVideoType === 'embed' && safeEmbedUrl) {
+              <iframe
+                [src]="safeEmbedUrl"
+                class="live-embed-iframe"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            } @else if (activeVideoType === 'video' && mediaInfo.playbackUrl) {
+              <video
+                #videoPlayer
+                [src]="mediaInfo.playbackUrl"
+                class="live-html5-player"
+                controls
+                playsinline
+                (timeupdate)="onVideoTimeUpdate()"
+              ></video>
+            } @else {
+              <div class="thumb-poster-wrap">
+                <img [src]="mediaInfo.thumbnail || '/favicon.ico'" alt="Thumb" class="thumb-poster-img" />
+                @if (mediaInfo.duration_string) {
+                  <span class="thumb-dur-tag">{{ mediaInfo.duration_string }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- PRO COMPACT TRIMMER DECK (Fits in just 2 sleek rows!) -->
+          <div class="neo-timeline-scrubber">
+            
+            <!-- ROW 1: Dual Range Slider with Left/Right Timestamps in ONE line -->
+            <div class="scrubber-track-row">
+              <span class="track-time-label">{{ formatTime(openSec) }}</span>
+              
+              <div class="dual-range-track-container">
+                <div class="track-bg-bar"></div>
+                <div
+                  class="track-selection-window"
+                  [style.left.%]="(openSec / durationSec) * 100"
+                  [style.width.%]="((closeSec - openSec) / durationSec) * 100"
+                >
+                  <span class="selection-pattern-label">TRIMMED</span>
+                </div>
+
+                <input
+                  type="range"
+                  class="dual-range-input slider-open-handle"
+                  [min]="0"
+                  [max]="durationSec"
+                  [step]="1"
+                  [(ngModel)]="openSec"
+                  (ngModelChange)="onOpenChange($event)"
+                  title="Drag 🟢 OPEN (Start)"
+                />
+
+                <input
+                  type="range"
+                  class="dual-range-input slider-close-handle"
+                  [min]="0"
+                  [max]="durationSec"
+                  [step]="1"
+                  [(ngModel)]="closeSec"
+                  (ngModelChange)="onCloseChange($event)"
+                  title="Drag 🔴 CLOSE (End)"
+                />
+              </div>
+
+              <span class="track-time-label">{{ formatTime(closeSec) }}</span>
+            </div>
+
+            <!-- ROW 2: Compact Badge & Action Buttons in ONE line -->
+            <div class="scrubber-controls-row">
+              
+              <!-- Unified Range Chip -->
+              <div class="compact-trim-badge">
+                <span class="val-open">🟢 {{ formatTime(openSec) }}</span>
+                <span class="arrow">➔</span>
+                <span class="val-close">🔴 {{ formatTime(closeSec) }}</span>
+                <span class="val-dur">({{ formatTime(closeSec - openSec) }})</span>
+              </div>
+
+              <!-- Quick Tool Buttons -->
+              <div class="compact-actions-group">
+                <button class="neo-tool-btn" (click)="setOpenToCurrent()" title="Set start to current position">
+                  📍IN
+                </button>
+                <button class="neo-tool-btn" (click)="setCloseToCurrent()" title="Set end to current position">
+                  📍OUT
+                </button>
+                <button class="neo-tool-btn neo-tool-play" (click)="playTrimmedSegment()" title="Preview selected part">
+                  ▶PLAY
+                </button>
+                <button class="neo-tool-btn" (click)="resetTrimRange()" title="Reset to full length">
+                  ↺ALL
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- MODE TOGGLE: VIDEO vs AUDIO ONLY -->
+        <div class="mode-switcher-container">
+          <div class="mode-switcher-box">
+            <button class="mode-btn" [class.active]="downloadType === 'video'" (click)="setDownloadType('video')">
+              🎬 VIDEO + AUDIO (MUXED)
+            </button>
+
+            <button class="mode-btn" [class.active]="downloadType === 'audio'" (click)="setDownloadType('audio')">
+              🎵 AUDIO ONLY (MP3 / FLAC)
+            </button>
+          </div>
+        </div>
+
+        <!-- VIDEO CONTROLS -->
+        @if (downloadType === 'video') {
+        <div class="controls-section">
+
+          <!-- Video Resolutions -->
+          <div class="control-row">
+            <span class="control-label">RESOLUTION QUALITY:</span>
+            <div class="pills-grid">
+              <button class="neo-choice-pill" [class.selected]="selectedQuality === 'best'"
+                (click)="selectedQuality = 'best'">
+                ★ BEST
+              </button>
+              @for (res of mediaInfo.availableResolutions; track res) {
+              <button class="neo-choice-pill" [class.selected]="selectedQuality === res"
+                (click)="selectedQuality = res">
+                {{ res }}
+              </button>
+              }
+              @if (!mediaInfo.availableResolutions || mediaInfo.availableResolutions.length === 0) {
+              <button class="neo-choice-pill selected">1080P</button>
+              <button class="neo-choice-pill" (click)="selectedQuality = '720p'">720P</button>
+              <button class="neo-choice-pill" (click)="selectedQuality = '480p'">480P</button>
+              }
+            </div>
+          </div>
+
+          <!-- Container Format -->
+          <div class="control-row">
+            <span class="control-label">CONTAINER FORMAT:</span>
+            <div class="pills-grid">
+              <button class="neo-choice-pill" [class.selected]="selectedFormat === 'mp4'"
+                (click)="selectedFormat = 'mp4'">
+                MP4 (H.264)
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedFormat === 'mkv'"
+                (click)="selectedFormat = 'mkv'">
+                MKV (LOSSLESS)
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedFormat === 'webm'"
+                (click)="selectedFormat = 'webm'">
+                WEBM (VP9)
+              </button>
+            </div>
+          </div>
+
+        </div>
+        }
+
+        <!-- AUDIO CONTROLS -->
+        @if (downloadType === 'audio') {
+        <div class="controls-section">
+
+          <!-- Audio Formats -->
+          <div class="control-row">
+            <span class="control-label">AUDIO ENCODING:</span>
+            <div class="pills-grid">
+              <button class="neo-choice-pill" [class.selected]="selectedFormat === 'mp3'"
+                (click)="selectedFormat = 'mp3'">
+                MP3
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedFormat === 'm4a'"
+                (click)="selectedFormat = 'm4a'">
+                M4A (AAC)
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedFormat === 'flac'"
+                (click)="selectedFormat = 'flac'">
+                FLAC (LOSSLESS)
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedFormat === 'wav'"
+                (click)="selectedFormat = 'wav'">
+                WAV
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedFormat === 'ogg'"
+                (click)="selectedFormat = 'ogg'">
+                OGG
+              </button>
+            </div>
+          </div>
+
+          <!-- Audio Bitrate -->
+          <div class="control-row">
+            <span class="control-label">BITRATE / FIDELITY:</span>
+            <div class="pills-grid">
+              <button class="neo-choice-pill" [class.selected]="selectedQuality === '320k'"
+                (click)="selectedQuality = '320k'">
+                320 KBPS (STUDIO)
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedQuality === '256k'"
+                (click)="selectedQuality = '256k'">
+                256 KBPS
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedQuality === '192k'"
+                (click)="selectedQuality = '192k'">
+                192 KBPS
+              </button>
+              <button class="neo-choice-pill" [class.selected]="selectedQuality === '128k'"
+                (click)="selectedQuality = '128k'">
+                128 KBPS
+              </button>
+            </div>
+          </div>
+
+        </div>
+        }
+
+        <!-- DEVICE FOLDER DESTINATION PANEL -->
+        <div class="neo-box folder-box">
+          <div class="folder-content">
+            <div class="folder-main-info">
+              <span class="folder-header-title">📁 SAVE FOLDER ON DEVICE:</span>
+              <span class="folder-path-display">
+                {{ selectedFolder ? selectedFolder + '/' + subfolderCategory : 'Default Browser Downloads' }}
+              </span>
+            </div>
+
+            <button class="neo-btn neo-btn-white neo-btn-sm" (click)="chooseDeviceFolder()">
+              CHANGE FOLDER
+            </button>
+          </div>
+
+          <div class="subfolder-input-row">
+            <span>SUBFOLDER:</span>
+            <input type="text" [(ngModel)]="subfolderCategory" placeholder="OmniDownloads" />
+          </div>
+        </div>
+
+        <!-- DOWNLOAD TRIGGER ACTION -->
+        <div class="download-action-wrap">
+          <button class="neo-btn neo-btn-pink main-download-trigger" (click)="startDownload()"
+            [disabled]="isDownloading">
+            @if (isDownloading) {
+            <span class="neo-spinner-white"></span>
+            <span>PROCESSING & STREAMING WITH FFMPEG...</span>
+            } @else {
+            <span>
+              DOWNLOAD {{ downloadType === 'audio' ? selectedFormat.toUpperCase() + ' (' + selectedQuality + ')' :
+              selectedQuality.toUpperCase() + ' ' + selectedFormat.toUpperCase() + (trimEnabled ? ' (TRIMMED)' : '') }}
+              →
+            </span>
+            }
+          </button>
+
+          <!-- Animated Memphis Striped Progress Bar -->
+          @if (isDownloading || downloadProgress > 0) {
+          <div class="neo-progress-container">
+            <div class="progress-labels">
+              <span class="progress-status-text">{{ downloadStatusText }}</span>
+              <span class="progress-percent-val">{{ downloadProgress }}%</span>
+            </div>
+            <div class="neo-progress-track">
+              <div class="neo-progress-fill" [style.width.%]="downloadProgress"></div>
+            </div>
+          </div>
+          }
+
+          <!-- Success Notification -->
+          @if (lastDownloadedFile && !isDownloading) {
+          <div class="neo-card success-banner">
+            <span class="success-check">✔</span>
+            <div class="success-text">
+              <strong>DOWNLOAD COMPLETED!</strong>
+              <p>{{ lastDownloadedFile.path }}</p>
+            </div>
+          </div>
+          }
+
+        </div>
+
+      </section>
+      }
+
+      <!-- LOCAL RECENT DOWNLOADS (Zero DB) -->
+      @if (downloadHistory.length > 0) {
+      <section id="history" class="neo-card history-card">
+        <div class="history-top">
+          <div class="history-title-box">
+            <span class="history-badge">HISTORY</span>
+            <h3>RECENT DOWNLOADS (LOCAL DEVICE)</h3>
+            <span class="history-count">{{ downloadHistory.length }}</span>
+          </div>
+
+          <button class="neo-btn neo-btn-white neo-btn-sm" (click)="clearHistory()">
+            CLEAR HISTORY
+          </button>
+        </div>
+
+        <div class="history-items-grid">
+          @for (item of downloadHistory; track item.id) {
+          <div class="neo-box history-item-box">
+            <div class="item-thumb-wrapper">
+              <img [src]="item.thumbnail || '/favicon.ico'" alt="Thumb" />
+              <span class="item-format-tag">{{ item.type === 'audio' ? '🎵' : '🎬' }} {{ item.format.toUpperCase()
+                }}</span>
+            </div>
+            <div class="item-info-col">
+              <h4 class="item-title" [title]="item.title">{{ item.title }}</h4>
+              <span class="item-detail">{{ item.quality }} • {{ item.savedPath || item.fileName }}</span>
+            </div>
+          </div>
+          }
+        </div>
+      </section>
+      }
+
+      <!-- PRIVATE ACCOUNT AUTHENTICATION MODAL -->
+      @if (showAuthModal) {
+      <div class="neo-modal-backdrop" (click)="showAuthModal = false">
+        <div class="neo-card neo-modal-dialog" (click)="$event.stopPropagation()">
+
+          <div class="modal-top">
+            <span class="modal-badge">🔐 AUTHENTICATION</span>
+            <button class="modal-close" (click)="showAuthModal = false">✕</button>
+          </div>
+
+          <h3 class="modal-title">PRIVATE ACCOUNT COOKIES</h3>
+          <p class="modal-explanation">
+            For private Instagram accounts you follow, private X/Twitter posts, or YouTube member-only videos:
+            paste your session cookie (e.g. <code>sessionid=...</code>) or Netscape <code>cookies.txt</code>.
+          </p>
+
+          <div class="neo-box modal-alert-box">
+            <span>★ 100% PRIVATE: Cookies are piped straight to local yt-dlp & <strong>NEVER saved to any
+                DB</strong>.</span>
+          </div>
+
+          <div class="modal-textarea-wrap">
+            <label>SESSION COOKIE / NETSCAPE CONTENT:</label>
+            <textarea rows="6" [(ngModel)]="privateCookies"
+              placeholder="sessionid=68291829%3Ak1J... or Netscape HTTP Cookie File"></textarea>
+          </div>
+
+          <div class="modal-footer-btns">
+            @if (hasCookiesSet) {
+            <button class="neo-btn neo-btn-white neo-btn-sm" (click)="clearCookies()">
+              CLEAR COOKIE
+            </button>
+            }
+            <div class="modal-right-btns">
+              <button class="neo-btn neo-btn-white" (click)="showAuthModal = false">CANCEL</button>
+              <button class="neo-btn neo-btn-pink" (click)="saveCookies()">SAVE & APPLY →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      }
+
+      <!-- MEMPHIS SHOWCASE BANNER IN FOOTER -->
+      <section class="memphis-footer-showcase neo-card">
+        <div class="footer-hero-left">
+          
+          <!-- Issue / Category Badge -->
+          <div class="hero-category-row">
+            <span class="memphis-issue-badge">
+              <span class="badge-dot">■</span> UNIVERSAL DOWNLOADER
+            </span>
+            <span class="issue-number">ISSUE Nº 01 • ZERO DB ARCHITECTURE</span>
+          </div>
+
+          <!-- Massive Display Headline -->
+          <h2 class="hero-display-title footer-title">
+            DOWNLOAD<br />
+            <span class="pink-italic">THAT DARES.</span>
+          </h2>
+
+          <!-- Squiggly accent -->
+          <div class="memphis-squiggle"></div>
+
+          <!-- Subtitle statement -->
+          <p class="hero-subheading">
+            Bold speed. Raw quality. Media that <strong>refuses to buffer</strong> — trim clips, extract audio, and
+            store directly on your device.
+          </p>
+
+          <!-- Back to top / Action buttons -->
+          <div class="hero-cta-row">
+            <button class="neo-btn neo-btn-pink hero-primary-btn" (click)="scrollToSearch()">
+              PASTE LINK →
+            </button>
+            <button class="neo-btn neo-btn-white hero-secondary-btn" (click)="chooseDeviceFolder()">
+              SELECT FOLDER
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Hero Right: Memphis Geometric Artwork Cluster -->
+        <div class="hero-right footer-art">
+          <div class="memphis-artwork-stage">
+
+            <!-- Diagonal Hatched Pink Card with binder clip -->
+            <div class="art-pink-card">
+              <div class="card-binder-clip"></div>
+              <div class="card-inner-pattern"></div>
+            </div>
+
+            <!-- Teal / Mint Circle -->
+            <div class="art-teal-circle"></div>
+
+            <!-- Ring circle -->
+            <div class="art-pink-ring"></div>
+
+            <!-- Rotated Yellow Square -->
+            <div class="art-yellow-square"></div>
+
+            <!-- Orange Triangle -->
+            <div class="art-orange-triangle"></div>
+
+            <!-- Dot Matrix Cluster -->
+            <div class="memphis-dot-matrix art-dots">
+              <span></span><span></span><span></span>
+              <span></span><span></span><span></span>
+              <span></span><span></span><span></span>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="neo-footer">
+        <p>OMNISTREAM STUDIO • MEMPHIS DESIGN STYLE • ZERO DB STATELESS ARCHITECTURE</p>
+      </footer>
+
+    </div>
+
+  </ion-content>
+</ion-app>

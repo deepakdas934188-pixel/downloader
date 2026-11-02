@@ -1,0 +1,253 @@
+/* Core Ionic Styles */
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/* Typography fallbacks for Neo-Brutalism & Memphis style */
+
+/* Neo-Brutalism & Memphis Design System */
+:root {
+  --font-display: 'Syne', 'Space Grotesk', -apple-system, sans-serif;
+  --font-body: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Memphis Palette */
+  --neo-bg: #fbfaf5;
+  --neo-dots: #d8d4c7;
+  --neo-card: #ffffff;
+  --neo-black: #111111;
+  --neo-pink: #ff2a70;
+  --neo-pink-hover: #e61d60;
+  --neo-yellow: #ffd93d;
+  --neo-yellow-hover: #f5cc24;
+  --neo-mint: #4ecdc4;
+  --neo-orange: #ff6b4a;
+  --neo-purple: #a388ee;
+  --neo-cream: #fffdf7;
+
+  --neo-border-width: 2.5px;
+  --neo-border: var(--neo-border-width) solid var(--neo-black);
+  --neo-shadow-sm: 3px 3px 0px var(--neo-black);
+  --neo-shadow: 5px 5px 0px var(--neo-black);
+  --neo-shadow-lg: 7px 7px 0px var(--neo-black);
+  --neo-shadow-hover: 6px 6px 0px var(--neo-black);
+
+  --ion-background-color: var(--neo-bg);
+  --ion-text-color: var(--neo-black);
+  --ion-font-family: var(--font-body);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--neo-bg);
+  color: var(--neo-black);
+  background-image: radial-gradient(var(--neo-dots) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+ion-content {
+  --background: transparent !important;
+}
+
+/* Neo-Brutalist Card */
+.neo-card {
+  background: var(--neo-card);
+  border: var(--neo-border);
+  border-radius: 8px;
+  box-shadow: var(--neo-shadow);
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tactile Buttons */
+.neo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  border: var(--neo-border);
+  border-radius: 6px;
+  box-shadow: var(--neo-shadow-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  text-decoration: none;
+
+  &:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--neo-shadow-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px var(--neo-black);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--neo-shadow-sm);
+  }
+}
+
+.neo-btn-pink {
+  background: var(--neo-pink);
+  color: #ffffff;
+  &:hover:not(:disabled) { background: var(--neo-pink-hover); }
+}
+
+.neo-btn-yellow {
+  background: var(--neo-yellow);
+  color: var(--neo-black);
+  &:hover:not(:disabled) { background: var(--neo-yellow-hover); }
+}
+
+.neo-btn-mint {
+  background: var(--neo-mint);
+  color: var(--neo-black);
+}
+
+.neo-btn-white {
+  background: #ffffff;
+  color: var(--neo-black);
+  &:hover:not(:disabled) { background: #f4f4f0; }
+}
+
+/* Neo Input */
+.neo-input-box {
+  background: #ffffff;
+  border: var(--neo-border);
+  border-radius: 8px;
+  box-shadow: var(--neo-shadow-sm);
+  display: flex;
+  align-items: center;
+  transition: all 0.15s ease;
+
+  &:focus-within {
+    box-shadow: var(--neo-shadow);
+    transform: translate(-1px, -1px);
+  }
+
+  input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--neo-black);
+
+    &::placeholder {
+      color: #71717a;
+      font-weight: 500;
+    }
+  }
+}
+
+/* Memphis Decorative Elements */
+.memphis-shape-pink-card {
+  width: 90px;
+  height: 100px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--neo-pink),
+    var(--neo-pink) 8px,
+    #ff4785 8px,
+    #ff4785 16px
+  );
+  border: var(--neo-border);
+  border-radius: 4px;
+  box-shadow: var(--neo-shadow-sm);
+  transform: rotate(8deg);
+}
+
+.memphis-circle-teal {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  background: var(--neo-mint);
+  border: var(--neo-border);
+  box-shadow: var(--neo-shadow-sm);
+}
+
+.memphis-square-yellow {
+  width: 60px;
+  height: 60px;
+  background: var(--neo-yellow);
+  border: var(--neo-border);
+  box-shadow: var(--neo-shadow-sm);
+  transform: rotate(-10deg);
+}
+
+.memphis-triangle-orange {
+  width: 0;
+  height: 0;
+  border-left: 32px solid transparent;
+  border-right: 32px solid transparent;
+  border-bottom: 55px solid var(--neo-orange);
+  filter: drop-shadow(4px 4px 0px var(--neo-black));
+}
+
+.memphis-dot-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, 8px);
+  gap: 8px;
+
+  span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neo-black);
+
+    &:nth-child(2) { background: var(--neo-pink); }
+    &:nth-child(4) { background: var(--neo-mint); }
+    &:nth-child(6) { background: var(--neo-yellow); }
+    &:nth-child(8) { background: var(--neo-orange); }
+  }
+}
+
+/* Memphis Squiggle SVG */
+.memphis-squiggle {
+  width: 140px;
+  height: 16px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0 10 Q 12.5 0, 25 10 T 50 10 T 75 10 T 100 10' fill='none' stroke='%23FFD93D' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Custom Scrollbars in Neo style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #fbfaf5;
+  border-left: 2px solid #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #ffd93d;
+  border: 2px solid #111;
+}

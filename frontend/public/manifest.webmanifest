@@ -1,0 +1,18 @@
+{
+  "name": "OmniStream - Media & Live Downloader",
+  "short_name": "OmniStream",
+  "description": "Universal Social Media, Live Stream & Audio Trimmer PWA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0d14",
+  "theme_color": "#06b6d4",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["utilities", "multimedia", "productivity"]
+}
+
