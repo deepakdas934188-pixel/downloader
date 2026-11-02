@@ -120,6 +120,21 @@ This starts:
 
 ---
 
+## ☁️ Deploy to Render (1-Click Blueprint)
+
+Deploy both the backend engine and the frontend PWA to **[Render](https://render.com/)** in seconds:
+
+1. Go to your [Render Dashboard](https://dashboard.render.com/) -> **New +** -> **Blueprint**.
+2. Connect your repo: `https://github.com/deepakdas934188-pixel/downloader.git`.
+3. Render automatically parses `render.yaml` and provisions:
+   - ⚡ **Backend Web Service**: Node 20 runtime with `yt-dlp` and `ffmpeg` engine.
+   - 🎨 **Frontend Static Site**: Angular 19 PWA with automatic API proxy rewrites.
+4. Click **Apply Blueprint**!
+
+👉 For detailed manual setup, Docker instructions, and troubleshooting, read the **[Render Deployment Guide](RENDER_DEPLOYMENT.md)**.
+
+---
+
 ## 📂 Project Architecture
 
 ```

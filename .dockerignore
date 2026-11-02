@@ -1,0 +1,14 @@
+node_modules
+*/node_modules
+.next
+*/.next
+dist
+*/dist
+.angular
+*/.angular
+backend/bin/*.exe
+backend/bin/ffmpeg.exe
+backend/bin/yt-dlp.exe
+.git
+.vscode
+*.log

@@ -91,6 +91,10 @@ export class AppComponent implements OnInit, OnDestroy {
   privateCookies: string = '';
   hasCookiesSet: boolean = false;
 
+  // Backend API Endpoint Settings (for Render / Production deployment)
+  showApiModal: boolean = false;
+  apiUrlInput: string = '';
+
   // Live Stream
   isLiveStream: boolean = false;
 
@@ -119,7 +123,7 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('videoPlayer') videoPlayerRef?: ElementRef<HTMLVideoElement>;
 
   constructor(
-    private downloaderService: DownloaderService,
+    public downloaderService: DownloaderService,
     public fsService: FileSystemService,
     public pwaService: PwaService,
     private sanitizer: DomSanitizer
@@ -484,6 +488,26 @@ export class AppComponent implements OnInit, OnDestroy {
     this.privateCookies = '';
     this.hasCookiesSet = false;
     localStorage.removeItem('omni_private_cookies');
+  }
+
+  // Backend API URL Config (Render / Cloud deployment)
+  openApiModal() {
+    this.apiUrlInput = this.downloaderService.getApiUrl();
+    this.showApiModal = true;
+  }
+
+  saveApiUrl() {
+    if (this.apiUrlInput && this.apiUrlInput.trim()) {
+      this.downloaderService.setApiUrl(this.apiUrlInput.trim());
+      this.checkBackend();
+      this.showApiModal = false;
+    }
+  }
+
+  resetApiUrl() {
+    this.downloaderService.resetApiUrl();
+    this.apiUrlInput = this.downloaderService.getApiUrl();
+    this.checkBackend();
   }
 
   // History operations (Client-side, No DB)

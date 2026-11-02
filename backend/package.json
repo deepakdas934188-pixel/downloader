@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start -p 3001",
+    "start": "next start",
+    "postinstall": "node scripts/setup-bin.js",
     "setup-bin": "node scripts/setup-bin.js"
   },
   "dependencies": {
@@ -23,4 +24,3 @@
     "typescript": "^5.4.5"
   }
 }
-

@@ -19,6 +19,9 @@ if (!fs.existsSync(targetFfmpeg)) {
     const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
     if (ffmpegInstaller && ffmpegInstaller.path && fs.existsSync(ffmpegInstaller.path)) {
       fs.copyFileSync(ffmpegInstaller.path, targetFfmpeg);
+      if (!isWin) {
+        fs.chmodSync(targetFfmpeg, 0o755);
+      }
       console.log(`[setup-bin] Copied ffmpeg from installer to: ${targetFfmpeg}`);
     }
   } catch (err) {
@@ -28,12 +31,16 @@ if (!fs.existsSync(targetFfmpeg)) {
 
 if (fs.existsSync(targetYtDlp)) {
   console.log(`[setup-bin] yt-dlp binary already exists at: ${targetYtDlp}`);
+  if (!isWin) {
+    try { fs.chmodSync(targetYtDlp, 0o755); } catch (e) {}
+  }
   process.exit(0);
 }
 
+// On Linux, use standalone PyInstaller binary yt-dlp_linux which embeds Python & PyCryptodome
 const downloadUrl = isWin
   ? 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe'
-  : 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp';
+  : 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux';
 
 console.log(`[setup-bin] Downloading ${ytDlpFileName} from: ${downloadUrl}`);
 
@@ -41,6 +48,7 @@ function downloadFile(url, dest, callback) {
   const file = fs.createWriteStream(dest);
   const request = (targetUrl) => {
     https.get(targetUrl, (response) => {
+      // Handle redirects (HTTP 301, 302, 307, 308)
       if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
         request(response.headers.location);
         return;
@@ -55,7 +63,11 @@ function downloadFile(url, dest, callback) {
       file.on('finish', () => {
         file.close(() => {
           if (!isWin) {
-            fs.chmodSync(dest, 0o755);
+            try {
+              fs.chmodSync(dest, 0o755);
+            } catch (chmodErr) {
+              console.warn('[setup-bin] chmod warning:', chmodErr.message);
+            }
           }
           callback(null);
         });
@@ -74,6 +86,11 @@ downloadFile(downloadUrl, targetYtDlp, (err) => {
     console.error('[setup-bin] Error downloading yt-dlp:', err.message);
     process.exit(1);
   } else {
+    if (!isWin) {
+      try {
+        fs.chmodSync(targetYtDlp, 0o755);
+      } catch (e) {}
+    }
     console.log(`[setup-bin] Successfully downloaded ${ytDlpFileName} to ${targetYtDlp}`);
     process.exit(0);
   }

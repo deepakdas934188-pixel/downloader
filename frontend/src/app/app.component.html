@@ -18,15 +18,22 @@
           <span class="nav-link" (click)="showAuthModal = true">PRIVATE AUTH</span>
           <span class="nav-link" (click)="chooseDeviceFolder()">DEVICE FOLDER</span>
           <span class="nav-link" (click)="scrollToHistory()">HISTORY</span>
+          <span class="nav-link" (click)="openApiModal()">API SETTINGS</span>
         </nav>
 
         <div class="nav-actions">
-          <!-- Backend Status Pill -->
-          <button class="neo-status-pill" [class.connected]="backendStatus === 'connected'"
-            [class.offline]="backendStatus === 'offline'" (click)="checkBackend()" title="Click to check engine health">
-            <span class="status-indicator"></span>
-            <span>{{ backendStatus === 'connected' ? 'ENGINE READY' : 'OFFLINE (RETRY)' }}</span>
-          </button>
+          <!-- Backend Status Pill & Settings -->
+          <div class="status-pill-group">
+            <button class="neo-status-pill" [class.connected]="backendStatus === 'connected'"
+              [class.offline]="backendStatus === 'offline'" (click)="checkBackend()"
+              title="Click to test engine health">
+              <span class="status-indicator"></span>
+              <span>{{ backendStatus === 'connected' ? 'ENGINE READY' : 'OFFLINE (RETRY)' }}</span>
+            </button>
+            <button class="neo-btn-gear" (click)="openApiModal()" title="Configure Backend API (Render / Cloud)">
+              ⚙️
+            </button>
+          </div>
 
           <!-- PWA Install Button -->
           @if (pwaService.canInstall) {
@@ -138,7 +145,7 @@
 
         <!-- LIVE VIDEO PLAYER & ULTRA-COMPACT PRO TRIMMER DECK -->
         <div class="video-preview-deck neo-card">
-          
+
           <!-- Compact Top Bar -->
           <div class="deck-top-bar">
             <div class="deck-title-group">
@@ -149,28 +156,19 @@
             <!-- Single Line Mode Chips -->
             <div class="deck-view-toggles">
               @if (safeEmbedUrl) {
-                <button
-                  class="neo-pill-btn"
-                  [class.active-pill]="activeVideoType === 'embed'"
-                  (click)="activeVideoType = 'embed'"
-                >
-                  LIVE
-                </button>
+              <button class="neo-pill-btn" [class.active-pill]="activeVideoType === 'embed'"
+                (click)="activeVideoType = 'embed'">
+                LIVE
+              </button>
               }
               @if (mediaInfo.playbackUrl) {
-                <button
-                  class="neo-pill-btn"
-                  [class.active-pill]="activeVideoType === 'video'"
-                  (click)="activeVideoType = 'video'"
-                >
-                  VIDEO
-                </button>
+              <button class="neo-pill-btn" [class.active-pill]="activeVideoType === 'video'"
+                (click)="activeVideoType = 'video'">
+                VIDEO
+              </button>
               }
-              <button
-                class="neo-pill-btn"
-                [class.active-pill]="activeVideoType === 'thumb'"
-                (click)="activeVideoType = 'thumb'"
-              >
+              <button class="neo-pill-btn" [class.active-pill]="activeVideoType === 'thumb'"
+                (click)="activeVideoType = 'thumb'">
                 COVER
               </button>
             </div>
@@ -179,70 +177,42 @@
           <!-- Video Viewport (Clean & constrained height) -->
           <div class="video-screen-frame">
             @if (activeVideoType === 'embed' && safeEmbedUrl) {
-              <iframe
-                [src]="safeEmbedUrl"
-                class="live-embed-iframe"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-              ></iframe>
+            <iframe [src]="safeEmbedUrl" class="live-embed-iframe" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
             } @else if (activeVideoType === 'video' && mediaInfo.playbackUrl) {
-              <video
-                #videoPlayer
-                [src]="mediaInfo.playbackUrl"
-                class="live-html5-player"
-                controls
-                playsinline
-                (timeupdate)="onVideoTimeUpdate()"
-              ></video>
+            <video #videoPlayer [src]="mediaInfo.playbackUrl" class="live-html5-player" controls playsinline
+              (timeupdate)="onVideoTimeUpdate()"></video>
             } @else {
-              <div class="thumb-poster-wrap">
-                <img [src]="mediaInfo.thumbnail || '/favicon.ico'" alt="Thumb" class="thumb-poster-img" />
-                @if (mediaInfo.duration_string) {
-                  <span class="thumb-dur-tag">{{ mediaInfo.duration_string }}</span>
-                }
-              </div>
+            <div class="thumb-poster-wrap">
+              <img [src]="mediaInfo.thumbnail || '/favicon.ico'" alt="Thumb" class="thumb-poster-img" />
+              @if (mediaInfo.duration_string) {
+              <span class="thumb-dur-tag">{{ mediaInfo.duration_string }}</span>
+              }
+            </div>
             }
           </div>
 
           <!-- PRO COMPACT TRIMMER DECK (Fits in just 2 sleek rows!) -->
           <div class="neo-timeline-scrubber">
-            
+
             <!-- ROW 1: Dual Range Slider with Left/Right Timestamps in ONE line -->
             <div class="scrubber-track-row">
               <span class="track-time-label">{{ formatTime(openSec) }}</span>
-              
+
               <div class="dual-range-track-container">
                 <div class="track-bg-bar"></div>
-                <div
-                  class="track-selection-window"
-                  [style.left.%]="(openSec / durationSec) * 100"
-                  [style.width.%]="((closeSec - openSec) / durationSec) * 100"
-                >
+                <div class="track-selection-window" [style.left.%]="(openSec / durationSec) * 100"
+                  [style.width.%]="((closeSec - openSec) / durationSec) * 100">
                   <span class="selection-pattern-label">TRIMMED</span>
                 </div>
 
-                <input
-                  type="range"
-                  class="dual-range-input slider-open-handle"
-                  [min]="0"
-                  [max]="durationSec"
-                  [step]="1"
-                  [(ngModel)]="openSec"
-                  (ngModelChange)="onOpenChange($event)"
-                  title="Drag 🟢 OPEN (Start)"
-                />
+                <input type="range" class="dual-range-input slider-open-handle" [min]="0" [max]="durationSec" [step]="1"
+                  [(ngModel)]="openSec" (ngModelChange)="onOpenChange($event)" title="Drag 🟢 OPEN (Start)" />
 
-                <input
-                  type="range"
-                  class="dual-range-input slider-close-handle"
-                  [min]="0"
-                  [max]="durationSec"
-                  [step]="1"
-                  [(ngModel)]="closeSec"
-                  (ngModelChange)="onCloseChange($event)"
-                  title="Drag 🔴 CLOSE (End)"
-                />
+                <input type="range" class="dual-range-input slider-close-handle" [min]="0" [max]="durationSec"
+                  [step]="1" [(ngModel)]="closeSec" (ngModelChange)="onCloseChange($event)"
+                  title="Drag 🔴 CLOSE (End)" />
               </div>
 
               <span class="track-time-label">{{ formatTime(closeSec) }}</span>
@@ -250,7 +220,7 @@
 
             <!-- ROW 2: Compact Badge & Action Buttons in ONE line -->
             <div class="scrubber-controls-row">
-              
+
               <!-- Unified Range Chip -->
               <div class="compact-trim-badge">
                 <span class="val-open">🟢 {{ formatTime(openSec) }}</span>
@@ -541,16 +511,69 @@
       </div>
       }
 
+      <!-- BACKEND API CONFIGURATION MODAL (FOR RENDER / PRODUCTION) -->
+      @if (showApiModal) {
+      <div class="neo-modal-backdrop" (click)="showApiModal = false">
+        <div class="neo-modal neo-card" (click)="$event.stopPropagation()">
+          <div class="neo-modal-header">
+            <h3>⚙️ BACKEND API CONFIGURATION</h3>
+            <button class="modal-close-btn" (click)="showApiModal = false">✕</button>
+          </div>
+
+          <p class="modal-desc">
+            Configure the backend Next.js API server endpoint. When hosted on <strong>Render</strong>, enter your Render
+            Web Service URL.
+          </p>
+
+          <div class="neo-box modal-alert-box">
+            <span>💡 <strong>Current Active API</strong>: <code>{{ downloaderService.getApiUrl() }}</code></span>
+          </div>
+
+          <div class="modal-textarea-wrap">
+            <label>API SERVER ENDPOINT URL:</label>
+            <input type="text" [(ngModel)]="apiUrlInput" class="neo-input api-endpoint-input"
+              placeholder="e.g. https://your-backend.onrender.com/api or /api or http://localhost:3001/api" />
+          </div>
+
+          <div class="api-hints-box">
+            <div class="api-hint-item">
+              <strong>🚀 Render Web Service:</strong>
+              <code>https://&lt;your-backend-name&gt;.onrender.com/api</code>
+            </div>
+            <div class="api-hint-item">
+              <strong>🌐 Render Static Site with Rewrite:</strong>
+              <code>/api</code>
+            </div>
+            <div class="api-hint-item">
+              <strong>💻 Local Development:</strong>
+              <code>http://localhost:3001/api</code>
+            </div>
+          </div>
+
+          <div class="modal-footer-btns">
+            <button class="neo-btn neo-btn-white neo-btn-sm" (click)="resetApiUrl()">
+              RESET TO AUTO
+            </button>
+            <div class="modal-right-btns">
+              <button class="neo-btn neo-btn-white" (click)="showApiModal = false">CANCEL</button>
+              <button class="neo-btn neo-btn-pink" (click)="saveApiUrl()">SAVE & CONNECT →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      }
+
       <!-- MEMPHIS SHOWCASE BANNER IN FOOTER -->
       <section class="memphis-footer-showcase neo-card">
         <div class="footer-hero-left">
-          
+
           <!-- Issue / Category Badge -->
           <div class="hero-category-row">
             <span class="memphis-issue-badge">
               <span class="badge-dot">■</span> UNIVERSAL DOWNLOADER
             </span>
-            <span class="issue-number">ISSUE Nº 01 • ZERO DB ARCHITECTURE</span>
+            <span class="issue-number">ISSUE Nº 01 • ZERO DB ARCHITECTURE • made by SA MUNDKA</span>
           </div>
 
           <!-- Massive Display Headline -->

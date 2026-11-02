@@ -43,15 +43,14 @@ export function getFfmpegPath(): string {
     return backendBin;
   }
 
-  // 3. Check node_modules/@ffmpeg-installer
-  const win64Bin = path.join(process.cwd(), 'node_modules', '@ffmpeg-installer', 'win32-x64', 'ffmpeg.exe');
-  if (fs.existsSync(win64Bin)) {
-    return win64Bin;
-  }
+  // 3. Check node_modules/@ffmpeg-installer for Windows & Linux
+  const archDirs = ['win32-x64', 'linux-x64', 'linux-ia32', 'linux-arm', 'linux-arm64', 'darwin-x64', 'darwin-arm64'];
+  for (const arch of archDirs) {
+    const candidate1 = path.join(process.cwd(), 'node_modules', '@ffmpeg-installer', arch, binName);
+    if (fs.existsSync(candidate1)) return candidate1;
 
-  const backendWin64Bin = path.join(process.cwd(), 'backend', 'node_modules', '@ffmpeg-installer', 'win32-x64', 'ffmpeg.exe');
-  if (fs.existsSync(backendWin64Bin)) {
-    return backendWin64Bin;
+    const candidate2 = path.join(process.cwd(), 'backend', 'node_modules', '@ffmpeg-installer', arch, binName);
+    if (fs.existsSync(candidate2)) return candidate2;
   }
 
   // 4. Try loading @ffmpeg-installer/ffmpeg
@@ -65,6 +64,6 @@ export function getFfmpegPath(): string {
     // ignore
   }
 
-  // 5. Fallback
+  // 5. Fallback to system PATH
   return binName;
 }

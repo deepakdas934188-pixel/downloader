@@ -64,22 +64,68 @@ export interface DownloadProgress {
   providedIn: 'root'
 })
 export class DownloaderService {
-  // Can be configured to relative '/api' or backend server
-  private apiUrl = 'http://localhost:3001/api';
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.apiUrl = this.detectApiUrl();
+  }
+
+  private detectApiUrl(): string {
+    if (typeof window === 'undefined') {
+      return 'http://localhost:3001/api';
+    }
+
+    // 1. Check user-configured override in localStorage
+    const saved = localStorage.getItem('omni_custom_api_url');
+    if (saved && saved.trim()) {
+      return saved.trim().replace(/\/+$/, '');
+    }
+
+    // 2. If running locally in Angular dev server (port 4200), point to local Next.js on 3001
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if ((host === 'localhost' || host === '127.0.0.1') && port === '4200') {
+      return 'http://localhost:3001/api';
+    }
+
+    // 3. In production on cloud (Render / Vercel) or reverse proxy, use relative '/api'
+    return '/api';
+  }
 
   setApiUrl(url: string) {
-    this.apiUrl = url;
+    const cleaned = url.trim().replace(/\/+$/, '');
+    this.apiUrl = cleaned;
+    if (typeof window !== 'undefined') {
+      if (cleaned && cleaned !== '/api') {
+        localStorage.setItem('omni_custom_api_url', cleaned);
+      } else {
+        localStorage.removeItem('omni_custom_api_url');
+      }
+    }
+  }
+
+  resetApiUrl() {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('omni_custom_api_url');
+    }
+    this.apiUrl = this.detectApiUrl();
   }
 
   getApiUrl(): string {
     return this.apiUrl;
   }
 
+  isCustomUrl(): boolean {
+    if (typeof window === 'undefined') return false;
+    return !!localStorage.getItem('omni_custom_api_url');
+  }
+
   checkHealth(): Observable<any> {
     return this.http.get(`${this.apiUrl}/health`).pipe(
-      catchError(err => throwError(() => new Error('Backend engine unreachable. Please start backend on port 3001.')))
+      catchError(err => {
+        const errorMsg = `Backend engine unreachable at ${this.apiUrl}. Check deployment or settings.`;
+        return throwError(() => new Error(errorMsg));
+      })
     );
   }
 
@@ -143,4 +189,3 @@ export class DownloaderService {
     });
   }
 }
-
