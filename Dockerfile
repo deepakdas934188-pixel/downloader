@@ -56,3 +56,4 @@ ENV PORT=10000
 EXPOSE 10000
 
 CMD ["npx", "next", "start", "-p", "10000"]
+

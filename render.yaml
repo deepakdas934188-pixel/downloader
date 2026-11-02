@@ -22,8 +22,6 @@ services:
   - type: web
     name: omnistream-frontend
     runtime: static
-    plan: free
-    region: oregon
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist/app/browser
@@ -32,9 +30,6 @@ services:
         name: Cache-Control
         value: no-cache
     routes:
-      - type: rewrite
-        source: /api/*
-        destination: https://omnistream-backend.onrender.com/api/*
       - type: rewrite
         source: /*
         destination: /index.html

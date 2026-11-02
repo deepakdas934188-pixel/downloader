@@ -115,3 +115,4 @@ Once deployed:
      }
      ```
 2. Open your frontend site, paste any YouTube or social media link, and enjoy downloading and trimming!
+

@@ -88,7 +88,12 @@ export class DownloaderService {
       return 'http://localhost:3001/api';
     }
 
-    // 3. In production on cloud (Render / Vercel) or reverse proxy, use relative '/api'
+    // 3. If running on Render (*.onrender.com), default to the deployed backend service
+    if (host.includes('.onrender.com')) {
+      return 'https://omnistream-backend.onrender.com/api';
+    }
+
+    // 4. In production on cloud or reverse proxy, use relative '/api'
     return '/api';
   }
 

@@ -12,3 +12,4 @@ backend/bin/yt-dlp.exe
 .git
 .vscode
 *.log
+
