@@ -1,8 +1,8 @@
 {
-  "name": "omnistream-downloader-workspace",
+  "name": "sa-downloader-workspace",
   "version": "1.0.0",
   "private": true,
-  "description": "Universal Social Media & Live Stream Downloader PWA (Angular + Ionic + Next.js + FFmpeg)",
+  "description": "SA Downloader - Universal Social Media & Live Stream Downloader PWA (Angular + Ionic + Next.js + FFmpeg)",
   "scripts": {
     "start": "node run-all.js",
     "dev:backend": "cd backend && npm run dev",

@@ -1,6 +1,6 @@
-# 🚀 Deploying OmniStream to Render (Step-by-Step Guide)
+# 🚀 Deploying SA Downloader to Render (Step-by-Step Guide)
 
-This guide walks you through deploying **OmniStream** (Next.js Backend + Angular 19 PWA Frontend) on **[Render](https://render.com/)**.
+This guide walks you through deploying **SA Downloader** (Next.js Backend + Angular 19 PWA Frontend) on **[Render](https://render.com/)**.
 
 ---
 
@@ -16,11 +16,12 @@ Render Blueprints use the included `render.yaml` file to deploy **both the Backe
    https://github.com/deepakdas934188-pixel/downloader.git
    ```
 4. Render will detect `render.yaml` and configure:
-   - **`omnistream-backend`** (Web Service, Node runtime, free tier)
+   - **`sadownloader-be`** (Web Service, Node runtime, free tier)
      - Root Directory: `backend`
      - Build Command: `npm install && npm run setup-bin && npm run build`
      - Start Command: `npm run start`
-   - **`omnistream-frontend`** (Static Site, free tier & unlimited bandwidth)
+     - URL: `https://sadownloader-be.onrender.com`
+   - **`sadownloader-fe`** (Static Site, free tier & unlimited CDN bandwidth)
      - Root Directory: `frontend`
      - Build Command: `npm install && npm run build`
      - Publish Directory: `./dist/app/browser`
@@ -37,7 +38,7 @@ If you prefer configuring the services individually in Render's dashboard:
 1. Go to [dashboard.render.com](https://dashboard.render.com/) -> **New +** -> **Web Service**.
 2. Connect your repo `https://github.com/deepakdas934188-pixel/downloader.git`.
 3. Set the following settings:
-   - **Name**: `omnistream-backend` (or your choice)
+   - **Name**: `sadownloader-be`
    - **Region**: Oregon (or nearest)
    - **Branch**: `main`
    - **Root Directory**: `backend`
@@ -49,9 +50,9 @@ If you prefer configuring the services individually in Render's dashboard:
    - `NODE_ENV`: `production`
    - `PORT`: `10000`
 5. Click **Create Web Service**.
-6. Once deployed, copy your backend URL, for example:
+6. Once deployed, your backend URL will be:
    ```
-   https://omnistream-backend.onrender.com
+   https://sadownloader-be.onrender.com
    ```
 
 ---
@@ -60,17 +61,13 @@ If you prefer configuring the services individually in Render's dashboard:
 1. In Render Dashboard, click **New +** -> **Static Site**.
 2. Connect the same repository: `https://github.com/deepakdas934188-pixel/downloader.git`.
 3. Set the following settings:
-   - **Name**: `omnistream-frontend`
+   - **Name**: `sadownloader-fe`
    - **Branch**: `main`
    - **Root Directory**: `frontend`
    - **Build Command**: `npm install && npm run build`
    - **Publish Directory**: `./dist/app/browser`
 4. Under **Redirects/Rewrites**:
-   - **Rule 1 (Reverse Proxy API)**:
-     - **Type**: `Rewrite`
-     - **Source**: `/api/*`
-     - **Destination**: `https://<YOUR-BACKEND-NAME>.onrender.com/api/*`
-   - **Rule 2 (Single Page App Routing)**:
+   - **Rule (Single Page App Routing)**:
      - **Type**: `Rewrite`
      - **Source**: `/*`
      - **Destination**: `/index.html`
@@ -80,32 +77,24 @@ If you prefer configuring the services individually in Render's dashboard:
 
 ## ⚙️ Connecting Frontend to Backend in the App
 
-If you deployed the frontend and backend on separate domains without a proxy rewrite:
-1. Open your deployed frontend URL (e.g., `https://omnistream-frontend.onrender.com`).
+The frontend automatically defaults to `https://sadownloader-be.onrender.com/api` when deployed on Render!
+
+If you ever need to customize the backend URL:
+1. Open your deployed frontend URL.
 2. Click **API SETTINGS** in the top navigation bar (or the ⚙️ icon next to the engine status badge).
-3. Paste your Render backend API URL:
+3. Paste your backend API URL:
    ```
-   https://omnistream-backend.onrender.com/api
+   https://sadownloader-be.onrender.com/api
    ```
 4. Click **SAVE & CONNECT →**.
 5. The badge will instantly turn 🟢 **ENGINE READY**! Your setting is saved locally in your browser.
 
 ---
 
-## 🐳 Option 3: Deploy via Docker (Single Container)
-
-If you prefer running both Frontend and Backend in a single unified Docker container:
-1. Go to [dashboard.render.com](https://dashboard.render.com/) -> **New +** -> **Web Service**.
-2. Select **Docker** as runtime.
-3. Render will automatically detect the root `Dockerfile`.
-4. Click **Deploy**.
-
----
-
 ## 🔍 Verifying Deployment
 
 Once deployed:
-1. Visit `https://<your-backend-url>/api/health`.
+1. Visit `https://sadownloader-be.onrender.com/api/health`.
    - Expected JSON response:
      ```json
      {
@@ -115,4 +104,3 @@ Once deployed:
      }
      ```
 2. Open your frontend site, paste any YouTube or social media link, and enjoy downloading and trimming!
-

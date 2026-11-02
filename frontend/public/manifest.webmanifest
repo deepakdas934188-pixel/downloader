@@ -1,11 +1,11 @@
 {
-  "name": "OmniStream - Media & Live Downloader",
-  "short_name": "OmniStream",
+  "name": "SA Downloader - Media & Live Studio",
+  "short_name": "SADownloader",
   "description": "Universal Social Media, Live Stream & Audio Trimmer PWA",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0d14",
-  "theme_color": "#06b6d4",
+  "background_color": "#fbfaf5",
+  "theme_color": "#FFD93D",
   "icons": [
     {
       "src": "/favicon.ico",
@@ -15,4 +15,3 @@
   ],
   "categories": ["utilities", "multimedia", "productivity"]
 }
-

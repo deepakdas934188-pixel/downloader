@@ -1,9 +1,9 @@
 services:
   # -------------------------------------------------------------------
-  # 1. OmniStream Backend Engine (Next.js 14 App Router API)
+  # 1. SA Downloader Backend Engine (Next.js 14 App Router API)
   # -------------------------------------------------------------------
   - type: web
-    name: omnistream-backend
+    name: sadownloader-be
     runtime: node
     plan: free
     region: oregon
@@ -17,10 +17,10 @@ services:
         value: 10000
 
   # -------------------------------------------------------------------
-  # 2. OmniStream Frontend Client (Angular 19 + Ionic PWA Static Site)
+  # 2. SA Downloader Frontend Client (Angular 19 + Ionic PWA Static Site)
   # -------------------------------------------------------------------
   - type: web
-    name: omnistream-frontend
+    name: sadownloader-fe
     runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build

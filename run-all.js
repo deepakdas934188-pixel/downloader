@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 console.log('\x1b[36m%s\x1b[0m', '════════════════════════════════════════════════════════════════');
-console.log('\x1b[36m%s\x1b[0m', '  🚀 OmniStream - Universal Media Downloader PWA Studio');
+console.log('\x1b[36m%s\x1b[0m', '  🚀 SA Downloader - Universal Media Downloader PWA Studio');
 console.log('\x1b[36m%s\x1b[0m', '  ✨ Angular 19 + Ionic + Next.js Engine + FFmpeg Processing');
 console.log('\x1b[36m%s\x1b[0m', '════════════════════════════════════════════════════════════════\n');
 

@@ -1,4 +1,4 @@
-# ⚡ OmniStream - Universal Media, Stream & Audio Downloader PWA
+# ⚡ SA Downloader - Universal Media, Stream & Audio Downloader PWA
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 [![Angular](https://img.shields.io/badge/Angular-19.x-red.svg)](https://angular.dev/)

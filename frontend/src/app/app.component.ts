@@ -100,7 +100,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Device Folder Management
   selectedFolder: string = '';
-  subfolderCategory: string = 'OmniDownloads';
+  subfolderCategory: string = 'SADownloads';
   fsSupported: boolean = false;
 
   // Download Execution & Progress

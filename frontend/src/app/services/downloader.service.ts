@@ -76,7 +76,7 @@ export class DownloaderService {
     }
 
     // 1. Check user-configured override in localStorage
-    const saved = localStorage.getItem('omni_custom_api_url');
+    const saved = localStorage.getItem('sa_custom_api_url') || localStorage.getItem('omni_custom_api_url');
     if (saved && saved.trim()) {
       return saved.trim().replace(/\/+$/, '');
     }
@@ -89,8 +89,8 @@ export class DownloaderService {
     }
 
     // 3. If running on Render (*.onrender.com), default to the deployed backend service
-    if (host.includes('.onrender.com')) {
-      return 'https://omnistream-backend.onrender.com/api';
+    if (host.includes('.onrender.com') || host.includes('.orender.com')) {
+      return 'https://sadownloader-be.onrender.com/api';
     }
 
     // 4. In production on cloud or reverse proxy, use relative '/api'
@@ -102,8 +102,9 @@ export class DownloaderService {
     this.apiUrl = cleaned;
     if (typeof window !== 'undefined') {
       if (cleaned && cleaned !== '/api') {
-        localStorage.setItem('omni_custom_api_url', cleaned);
+        localStorage.setItem('sa_custom_api_url', cleaned);
       } else {
+        localStorage.removeItem('sa_custom_api_url');
         localStorage.removeItem('omni_custom_api_url');
       }
     }
@@ -111,6 +112,7 @@ export class DownloaderService {
 
   resetApiUrl() {
     if (typeof window !== 'undefined') {
+      localStorage.removeItem('sa_custom_api_url');
       localStorage.removeItem('omni_custom_api_url');
     }
     this.apiUrl = this.detectApiUrl();
